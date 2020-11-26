@@ -3,6 +3,9 @@ package com.hendisantika.springbootthymeleafbootstrapdatatable.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hendisantika.springbootthymeleafbootstrapdatatable.model.Employee;
+import com.hendisantika.springbootthymeleafbootstrapdatatable.model.EmployeeComparators;
+import com.hendisantika.springbootthymeleafbootstrapdatatable.model.paging.Column;
+import com.hendisantika.springbootthymeleafbootstrapdatatable.model.paging.Order;
 import com.hendisantika.springbootthymeleafbootstrapdatatable.model.paging.Page;
 import com.hendisantika.springbootthymeleafbootstrapdatatable.model.paging.PagingRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -88,4 +91,30 @@ public class EmployeeService {
                 .contains(value);
     }
 
+    private Comparator<Employee> sortEmployees(PagingRequest pagingRequest) {
+        if (pagingRequest.getOrder() == null) {
+            return EMPTY_COMPARATOR;
+        }
+
+        try {
+            Order order = pagingRequest.getOrder()
+                    .get(0);
+
+            int columnIndex = order.getColumn();
+            Column column = pagingRequest.getColumns()
+                    .get(columnIndex);
+
+            Comparator<Employee> comparator = EmployeeComparators.getComparator(column.getData(), order.getDir());
+            if (comparator == null) {
+                return EMPTY_COMPARATOR;
+            }
+
+            return comparator;
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return EMPTY_COMPARATOR;
+    }
 }
