@@ -7,10 +7,12 @@ import com.hendisantika.springbootthymeleafbootstrapdatatable.model.paging.Page;
 import com.hendisantika.springbootthymeleafbootstrapdatatable.model.paging.PagingRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +66,26 @@ public class EmployeeService {
         page.setDraw(pagingRequest.getDraw());
 
         return page;
+    }
+
+    private Predicate<Employee> filterEmployees(PagingRequest pagingRequest) {
+        if (pagingRequest.getSearch() == null || StringUtils.isEmpty(pagingRequest.getSearch()
+                .getValue())) {
+            return employee -> true;
+        }
+
+        String value = pagingRequest.getSearch()
+                .getValue();
+
+        return employee -> employee.getName()
+                .toLowerCase()
+                .contains(value)
+                || employee.getPosition()
+                .toLowerCase()
+                .contains(value)
+                || employee.getOffice()
+                .toLowerCase()
+                .contains(value);
     }
 
 }
